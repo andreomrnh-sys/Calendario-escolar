@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário Estruturador de Aulas</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- CABEÇALHO -->
+    <header>
+        <div class="brand">
+            <div class="brand-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+            </div>
+            <h1>Calendário Estruturador de Aulas</h1>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- ESTATÍSTICAS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-label">Aulas Alocadas</div>
+                    <div class="stat-value" id="stat-total">0</div>
+                </div>
+            </div>
+            <div class="stat-card amber">
+                <div>
+                    <div class="stat-label">Professores</div>
+                    <div class="stat-value" id="stat-profs">0</div>
+                </div>
+            </div>
+            <div class="stat-card green">
+                <div>
+                    <div class="stat-label">Turmas Ativas</div>
+                    <div class="stat-value" id="stat-turmas">0</div>
+                </div>
+            </div>
+            <div class="stat-card green" id="card-conflicts">
+                <div>
+                    <div class="stat-label">Conflitos Detectados</div>
+                    <div class="stat-value" id="stat-conflicts" style="color: #10b981;">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BANNER DE CONFLITO -->
+        <div class="alert-banner" id="conflict-banner">
+            <div class="alert-info">
+                <span class="alert-badge">INVÁLIDO</span>
+                <div>
+                    <strong id="banner-title" style="display:block; font-size: 1.15rem;">Conflito de Alocação Simultânea!</strong>
+                    <span id="banner-desc" style="font-size: 1.02rem; color: #fecaca;"></span>
+                </div>
+            </div>
+            <button class="btn btn-danger" onclick="focarPrimeiroConflito()">Ver Conflito</button>
+        </div>
+
+        <!-- ÁREA PRINCIPAL -->
+        <div class="main-grid">
+
+            <!-- FORMULÁRIO DE ALOCAÇÃO -->
+            <div class="panel">
+                <div class="panel-title">
+                    <span>+ Alocar Nova Aula</span>
+                </div>
+
+                <form id="form-alocacao" onsubmit="registrarAula(event)">
+                    <div class="form-group">
+                        <label for="select-turma">Turma</label>
+                        <select id="select-turma" required></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="select-professor">Professor</label>
+                        <select id="select-professor" required></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="select-disciplina">Disciplina</label>
+                        <select id="select-disciplina" required></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="select-dia">Dia da Semana</label>
+                        <select id="select-dia" required></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="select-horario">Horário</label>
+                        <select id="select-horario" required></select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Confirmar Alocação</button>
+                </form>
+
+                <div class="legend-box">
+                    <strong>Indicadores Visuais:</strong>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <span class="dot valid"></span>
+                            <span>Válido</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="dot invalid"></span>
+                            <span style="color: #f87171;">Inválido</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRADE SEMANAL -->
+            <div class="panel">
+                <div class="table-toolbar">
+                    <div class="tabs-group">
+                        <button class="tab-btn active" id="tab-turma" onclick="mudarModoVisao('turma')">Por Turma</button>
+                        <button class="tab-btn" id="tab-professor" onclick="mudarModoVisao('professor')">Por Professor</button>
+                        <button class="tab-btn" id="tab-geral" onclick="mudarModoVisao('geral')">Visão Geral</button>
+                        <button class="edit-cal-btn" onclick="abrirModalEditar()">Editar Calendário</button>
+                    </div>
+
+                    <div class="filter-box">
+                        <label id="filter-label" for="filter-select">Turma:</label>
+                        <select id="filter-select" onchange="atualizarFiltro(this.value)"></select>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Horário</th>
+                                <th>Segunda</th>
+                                <th>Terça</th>
+                                <th>Quarta</th>
+                                <th>Quinta</th>
+                                <th>Sexta</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-corpo"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL DE ALERTA DE CONFLITO -->
+    <div class="modal-overlay" id="modal-conflito">
+        <div class="modal-box danger-modal">
+            <div class="modal-header" style="border-bottom-color: rgba(239,68,68,0.3);">
+                <div>
+                    <h3 style="color: #ef4444; font-size: 1.5rem;">INVÁLIDO</h3>
+                    <p style="font-size: 1rem; color: #fca5a5;">Conflito detectado na matriz temporal</p>
+                </div>
+            </div>
+            <div id="modal-conflito-texto" style="font-size: 1.08rem; line-height: 1.55; color: #f1f5f9; margin-bottom: 24px;"></div>
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button class="btn btn-secondary" onclick="desfazerUltimaAula()">Cancelar esta Aula</button>
+                <button class="btn btn-danger" onclick="fecharModalConflito()">Manter e Ajustar Depois</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR CALENDÁRIO -->
+    <div class="modal-overlay" id="modal-editar">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Editar Calendário e Cadastros</h3>
+                <button class="btn btn-secondary" style="padding: 8px 14px;" onclick="fecharModalEditar()">✕</button>
+            </div>
+
+            <div class="manage-grid">
+                <!-- Professores -->
+                <div class="manage-card">
+                    <h4>Professores</h4>
+                    <div class="add-row">
+                        <input type="text" id="novo-prof" placeholder="Nome...">
+                        <button onclick="adicionarItem('professor')">+</button>
+                    </div>
+                    <ul class="item-list" id="lista-profs"></ul>
+                </div>
+
+                <!-- Turmas -->
+                <div class="manage-card">
+                    <h4>Turmas</h4>
+                    <div class="add-row">
+                        <input type="text" id="novo-turma" placeholder="Nome...">
+                        <button onclick="adicionarItem('turma')">+</button>
+                    </div>
+                    <ul class="item-list" id="lista-turmas"></ul>
+                </div>
+
+                <!-- Disciplinas -->
+                <div class="manage-card">
+                    <h4>Disciplinas</h4>
+                    <div class="add-row">
+                        <input type="text" id="novo-disc" placeholder="Nome...">
+                        <button onclick="adicionarItem('disciplina')">+</button>
+                    </div>
+                    <ul class="item-list" id="lista-discs"></ul>
+                </div>
+            </div>
+
+            <div class="danger-zone">
+                <div>
+                    <strong style="color: #f87171; font-size: 1.1rem; display: block;">Limpar Grade Completa</strong>
+                    <span style="font-size: 0.95rem; color: #cbd5e1;">Zera toda a matriz multidimensional de horários da semana.</span>
+                </div>
+                <button class="btn btn-danger" onclick="limparTudo()">Limpar Tudo</button>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="fecharModalEditar()">Concluir</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
