@@ -154,22 +154,22 @@
         </div>
     </div>
 
-    <!-- MODAL DE ALERTA DE CONFLITO -->
+        <!-- MODAL DE ALERTA DE CONFLITO -->
     <div class="modal-overlay" id="modal-conflito">
         <div class="modal-box danger-modal">
             <div class="modal-header" style="border-bottom-color: rgba(239,68,68,0.3);">
                 <div>
-                    <h3 style="color: #ef4444; font-size: 1.5rem;">INVÁLIDO</h3>
+                    <h3 style="color: #ef4444; font-size: 1.5rem;">ALOCAÇÃO INVÁLIDA</h3>
                     <p style="font-size: 1rem; color: #fca5a5;">Conflito detectado na matriz temporal</p>
                 </div>
             </div>
             <div id="modal-conflito-texto" style="font-size: 1.08rem; line-height: 1.55; color: #f1f5f9; margin-bottom: 24px;"></div>
             <div style="display: flex; justify-content: flex-end; gap: 12px;">
-                <button class="btn btn-secondary" onclick="desfazerUltimaAula()">Cancelar esta Aula</button>
-                <button class="btn btn-danger" onclick="fecharModalConflito()">Manter e Ajustar Depois</button>
+                <button class="btn btn-danger" onclick="desfazerUltimaAula()">Prosseguir / Desfazer Aula em Conflito</button>
             </div>
         </div>
     </div>
+
 
     <!-- MODAL EDITAR CALENDÁRIO -->
     <div class="modal-overlay" id="modal-editar">
